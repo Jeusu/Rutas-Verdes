@@ -82,7 +82,7 @@
   .menu {
     position: absolute;
     top: 15px;
-    left: 1150px;
+    left: 1000px;
     background: rgba(255,255,255,0.9);
     padding: 10px 15px;
     border-radius: 10px;
@@ -97,18 +97,81 @@
     font-size: 14px;
     color: #000;
   }
+  .color-cuadro {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* 🔹 Colores de cada ruta */
+.verde { background-color: #28a745; }
+.naranja { background-color: #ff9800; }
+.azul { background-color: #007bff; }
+.rojo { background-color: #dc3545; }
+
+  /* 🔹 Botón hamburguesa (solo móvil) */
+  .toggle-menu {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 153, 0, 0.9);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1100;
+    display: none;
+  }
+
+  /* 🔹 Adaptación para móviles */
+  @media (max-width: 768px) {
+    .menu {
+      left: 0;
+      right: 0;
+      top: 0;
+      border-radius: 0 0 12px 12px;
+      padding: 12px;
+      display: none;
+    }
+
+    .menu.activo {
+      display: block;
+    }
+
+    .toggle-menu {
+      display: block;
+    }
+
+    .inferior .btn {
+      width: 48%;
+      font-size: 0.95em;
+      padding: 12px;
+    }
+
+    .firma {
+      font-size: 0.75em;
+      left: 10px;
+    }
+  }
+
 </style>
 </head>
 <body>
-
   <div id="mapa"></div>
+    <button class="toggle-menu" onclick="document.querySelector('.menu').classList.toggle('activo')">
+  ☰
+    </button>
 
   <!-- ✅ Menú para ocultar/mostrar rutas -->
-  <div class="menu">
-    <label><input type="checkbox" id="a_ida" checked> Ruta A - Ida</label>
-    <label><input type="checkbox" id="a_retorno" checked> Ruta A - Retorno</label>
-    <label><input type="checkbox" id="b_ida" checked> Ruta B - Ida</label>
-  </div>
+<div class="menu">
+  <label><input type="checkbox" id="a_ida" checked> Ruta A - Ida   <span class="color-cuadro verde"></span></label>
+  <label><input type="checkbox" id="a_retorno" checked> Ruta A - Retorno   <span class="color-cuadro naranja"></span></label>
+  <label><input type="checkbox" id="b_ida" checked> Ruta B - Ida   <span class="color-cuadro azul"></span></label>
+  <label><input type="checkbox" id="b_retorno" checked> Ruta B - Retorno   <span class="color-cuadro rojo"></span></label>
+</div>
 
   <!-- ✅ Botones inferiores -->
   <div class="inferior">
@@ -126,7 +189,7 @@
   }).addTo(mapa);
 
   // ---- RUTAS ----
-  let rutaA_ida, rutaA_retorno, rutaB_ida;
+  let rutaA_ida, rutaA_retorno, rutaB_ida, rutaB_retorno;
 
   // Ruta A ida
   fetch('a_ida.json')
@@ -134,7 +197,7 @@
     .then(data => {
       rutaA_ida = L.geoJSON(data, {
         filter: (f) => f.geometry.type === "LineString",
-        style: { color: 'green', weight: 5, opacity: 0.7, dashArray: '6 6' }
+        style: { color: 'green', weight: 5, opacity: 0.7}
       }).addTo(mapa);
     });
 
@@ -154,9 +217,19 @@
     .then(data => {
       rutaB_ida = L.geoJSON(data, {
         filter: (f) => f.geometry.type === "LineString",
-        style: { color: 'blue', weight: 5, opacity: 0.5, dashArray: '9 9' }
+        style: { color: 'blue', weight: 5, opacity: 0.5}
       }).addTo(mapa);
     });
+
+     // Ruta B retorno
+  fetch('b_retorno.json')
+    .then(res => res.json())
+    .then(data => {
+      rutaB_retorno = L.geoJSON(data, {
+        filter: (f) => f.geometry.type === "LineString",
+        style: { color: 'red', weight: 5, opacity: 0.5, dashArray: '9 9' }
+      }).addTo(mapa);
+    }); 
 
   // ---- Control de visibilidad ----
   function toggleRuta(checkboxId, layer) {
@@ -173,6 +246,7 @@
     toggleRuta('a_ida', rutaA_ida);
     toggleRuta('a_retorno', rutaA_retorno);
     toggleRuta('b_ida', rutaB_ida);
+    toggleRuta('b_retorno', rutaB_retorno);
   }, 1000);
 
  let marcadorUsuario = null;
@@ -245,11 +319,11 @@
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         await mostrarUbicacion(pos.coords.latitude, pos.coords.longitude);
-        botonUbicacion.innerText = '📍 Actualizado';
+        botonUbicacion.innerText = 'Actualizado 📍';
         setTimeout(() => botonUbicacion.innerText = '¿Dónde estás?', 3000);
       },
       () => {
-        botonUbicacion.innerText = '📍 No se pudo detectar ubicación, toca el mapa.';
+        botonUbicacion.innerText = 'No se pudo detectar ubicación 📍, toca el mapa.';
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -257,4 +331,5 @@
 </script>
 
 </body>
+</button>
 </html>
