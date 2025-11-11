@@ -31,13 +31,13 @@ Se rediseño la direcciones para hacerlas mas amigables con los usuarios
 
 PROXIMAS ACTUALIZACIONES:
 
-1.4-alpha Arreglar la ruta b ida  ✔
+1.3.1-alpha Arreglar la ruta b ida  ✔
 
-1.5-alpha Implementar si esta en el rango de las busetas y si se encuentra fuera del rango, mostrar una advertencia (Fuera de Sincelejo) 
+1.4-alpha Implementar si esta en el rango de las busetas y si se encuentra fuera del rango, mostrar una advertencia (Fuera de Sincelejo) 
 
-1.6-alpha Implementar una base de datos de puntos de interés que el usuario puede buscar con un cuadro de búsqueda, para facilitar la selección de “Hacia Donde?” 
+1.5-alpha Implementar una base de datos de puntos de interés que el usuario puede buscar con un cuadro de búsqueda, para facilitar la selección de “Hacia Donde?” 
 
-1.7-alpha Mejorar las líneas de las rutas, para hacerlas mas claras la Ida y el Retorno
+1.6-alpha Mejorar las líneas de las rutas, para hacerlas mas claras la Ida y el Retorno
 
 FUTURAS ACTUALIZACIONES:
 
