@@ -37,11 +37,11 @@ PROXIMAS ACTUALIZACIONES:
 
 1.5-alpha Mejorar las líneas de las rutas, para hacerlas mas claras la Ida y el Retorno   ✔
 
-1.6-alpha Implementar una base de datos de puntos de interés que el usuario puede buscar con un cuadro de búsqueda, para facilitar la selección de “Hacia Donde?” 
+1.6-alpha Implementar una base de datos de puntos de interés que el usuario puede buscar con un cuadro de búsqueda, para facilitar la selección de “Hacia Donde?”  ✔
+
+1.0-beta Implementar por fin, la ruta sugerida para tomar el recorrido y ocultar las otras rutas que no necesitas ✔
 
 FUTURAS ACTUALIZACIONES:
-
-1.0-beta Implementar por fin, la ruta sugerida para tomar el recorrido y ocultar las otras rutas que no necesitas
 
 1.x-betaindev Tratar de implementar un modo “Offline”
 
