@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rutas Verdes</title>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-polylinedecorator"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+<style>
+
+  /* Estilo Ventana de Bienvenida (Similar a fuera de rango) Ventana de actualizacion */
+.modal-bienvenida {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Fondo oscuro detrás */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000; /* Por encima de TODO */
+  animation: aparecer 0.4s ease;
+}
+
+.modal-bienvenida .aviso-contenido {
+  background: rgba(20, 20, 20, 0.95);
+  color: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+  max-width: 300px;
+  border: 1px solid #004d00;
+  position: relative;
+}
+
+/*Ventana de actualizacion fin*/
+
+ #buscador-container {
+  position: fixed;   /* Fijo en pantalla */
+  top: 10px;         /* Arriba */
+  left: 50%;         /* Centrado horizontal */
+  transform: translateX(-50%);
+  width: 53%;
+  max-width: 400px;
+  padding: 10px;
+  border-radius: 10px;
+  z-index: 2000;     /* Encima de todo */
+  display: none;     /* Se muestra al buscar */
+}
+
+#buscadorDestino {
+  width: 100%;          /* input ocupa todo el ancho */
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #555;
+  background: #222;
+  color: #ffffff;
+}
+
+#sugerencias {
+  margin-top: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #1a1a1a;
+  border-radius: 8px;
+  display: none;
+}
+
+
+/* Menú centrado */
+.menu-destino {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  width: 85%;
+  max-width: 320px;
+  text-align: center;
+  display: none;
+  z-index: 1000;
+
+  /* Animación de aparición */
+  opacity: 0;
+  transition: all 0.25s ease;
+}
+
+.menu-destino.activo {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Botones internos */
+.opcion-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: #2d2d2d;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.opcion-btn:hover {
+  background: #3a3a3a;
+}
+
+
+.icono-rotatorio {
+  transform-origin: center center;
+}
+
+.flecha-usuario {
+  width: 40px;
+  height: 40px;
+  background-image: url('https://www.pngarts.com/files/13/Caret-Arrow-PNG-Photo.png'); /* 🔹 Imagen de flecha */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.2s linear;
+}
+
+  body {
+    background-color: #000;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: white;
+    text-align: center;
+  }
+
+  #mapa {
+    height: 100vh;
+    width: 100%;
+  }
+
+  /*  Botones principales */
+  .btn {
+    display: block;
+    width: 80%;
+    margin: 10px auto;
+    padding: 15px;
+    background: linear-gradient(135deg, #009900, #00cc44);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  }
+
+  .btn:hover {
+    background: linear-gradient(135deg, #00b33c, #00ff66);
+    transform: scale(1.03);
+  }
+
+  /*  Contenedor inferior */
+  .inferior {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(6px);
+    padding: 15px 10px 10px;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.5);
+    border-top: 1px solid #004d00;
+    z-index: 1000;
+  }
+
+  .inferior .btn {
+    display: inline-block;
+    width: 45%;
+    margin: 5px 2%;
+    font-size: 1.1em;
+  }
+
+  /*  Firma */
+  .firma {
+    position: fixed;
+    bottom: 90px;
+    left: 20px;
+    font-size: 0.85em;
+    color: #aaa;
+    font-style: italic;
+    z-index: 1001;
+    opacity: 0.8;
+  }
+
+  /*  Menú de rutas */
+  .menu {
+    position: absolute;
+    top: 15px;
+    left: 1000px;
+    background: rgba(255,255,255,0.9);
+    padding: 10px 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 1000;
+    font-family: sans-serif;
+  }
+
+  .menu label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #000;
+  }
+  .color-cuadro {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* Colores de cada ruta */
+.verde { background-color: #28a745; }
+.naranja { background-color: #ff9800; }
+.azul { background-color: #007bff; }
+.rojo { background-color: #dc3545; }
+  /*  Botón hamburguesa (solo móvil) */
+  .toggle-menu {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 153, 0, 0.9);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1100;
+    display: none;
+  }
+
+  /*  Adaptación para móviles */
+  @media (max-width: 768px) {
+    .menu {
+      left: 0;
+      right: 0;
+      top: 0;
+      border-radius: 0 0 12px 12px;
+      padding: 12px;
+      display: none;
+    }
+
+    .menu.activo {
+      display: block;
+    }
+
+    .toggle-menu {
+      display: block;
+    }
+
+    .inferior .btn {
+      width: 48%;
+      font-size: 0.95em;
+      padding: 12px;
+    }
+
+    .firma {
+      font-size: 0.75em;
+      left: 10px;
+    }
+  }
+
+/* Ventana de fuera del mapa */
+#avisoFuera {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255,255,255,0.3);
+  z-index: 9999;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  animation: aparecer 0.3s ease;
+}
+
+.aviso-contenido {
+  position: relative;
+  text-align: center;
+}
+
+.cerrar-aviso {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  cursor: pointer;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+</style>
+</head>
+<body>
+
+  <!-- Ventana de aviso actualizacion -->
+  <div id="modalBienvenida" class="modal-bienvenida">
+  <div class="aviso-contenido">
+    <button class="cerrar-aviso" onclick="cerrarBienvenida()">✖</button>
+    <h2 style="color: #ffcc00; margin-top: 0;">⚠ ATENCIÓN</h2>
+    <p>Las rutas están un poco cambiadas, te puedes encontrar errores en las rutas. Está en proceso el arreglo.</p>
+    <p><strong>¡Gracias por usar mi proyecto!</strong></p>
+    <button class="opcion-btn" onclick="cerrarBienvenida()" style="background: #009900; margin-top: 15px;">Entendido</button>
+  </div>
+</div>
+
+<!-- Cuadro de búsqueda + sugerencias -->
+<div id="buscador-container">
+  <input type="text" id="buscadorDestino" placeholder="Buscar punto de interés..." 
+    style="width:100%; padding:10px; border-radius:8px; border:none; font-size:16px;">
+  
+  <div id="sugerencias"></div>
+</div>
+
+
+  <div id="mapa"></div>
+  <!-- FONDO OSCURO DEL MENÚ -->
+<div id="overlayDestino" style="display:none;"></div>
+
+<!--  MENÚ EMERGENTE CENTRADO -->
+<div id="menuDestino" class="menu-destino">
+  <h3>Selecciona una opción:</h3>
+  <button id="opMapa" class="opcion-btn">📍 Seleccionar en el mapa</button>
+  <button id="opBuscar" class="opcion-btn">🔎 Buscar destino</button>
+</div>
+
+    <button class="toggle-menu" onclick="document.querySelector('.menu').classList.toggle('activo')">
+  ☰
+    </button>
+
+  <!--  Menú para ocultar/mostrar rutas -->
+<div class="menu">
+  <label><input type="checkbox" id="a_ida" checked> Ruta A - Ida   <span class="color-cuadro verde"></span></label>
+  <label><input type="checkbox" id="a_retorno" checked> Ruta A - Retorno   <span class="color-cuadro naranja"></span></label>
+  <label><input type="checkbox" id="b_ida" checked> Ruta B - Ida   <span class="color-cuadro azul"></span></label>
+  <label><input type="checkbox" id="b_retorno" checked> Ruta B - Retorno   <span class="color-cuadro rojo"></span></label>
+</div>
+
+<!--  Botones inferiores -->
+<div class="inferior">
+    <button id="btnUbicacion" class="btn">¿Dónde estás?</button>
+    <button id="btnDestino" class="btn">¿Hacia dónde?</button>
+
+    <!--  Cuadro de búsqueda + sugerencias -->
+      
+      <div id="sugerencias" style="
+        display:none;
+        background:#1a1a1a;
+        margin-top:5px;
+        border-radius:8px;
+        padding:10px;
+        max-height:200px;
+        overflow-y:auto;
+      "></div>
+    </div>
+
+</div>
+
+
+
+  <!--  Firma -->
+  <div class="firma">@jeusu</div>
+
+  <!-- El SCRIPT MAS JODIDO DEL MUNDO-->
+
+<script>
+  const mapa = L.map('mapa').setView([9.3047, -75.3978], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(mapa);
+
+/* VARIABLES PARA CADA RUTA + SUS FLECHAS*/
+let rutaA_ida, decoA_ida;
+let rutaA_retorno, decoA_retorno;
+let rutaB_ida, decoB_ida;
+let rutaB_retorno, decoB_retorno;
+
+/* FUNCIÓN PARA AGREGAR FLECHAS A UNA POLILÍNEA */
+function agregarFlechas(geoJsonLayer, colorFlecha = "white") {
+  const grupoDecorador = L.featureGroup().addTo(mapa);
+
+  geoJsonLayer.eachLayer(layer => {
+    if (layer instanceof L.Polyline) {
+      const deco = L.polylineDecorator(layer, {
+        patterns: [{
+          offset: 0,
+          repeat: 25,
+          symbol: L.Symbol.arrowHead({
+            pixelSize: 12,
+            polygon: false,
+            pathOptions: { color: colorFlecha, weight: 2 }
+          })
+        }]
+      });
+      deco.addTo(grupoDecorador);
+    }
+  });
+
+  return grupoDecorador;
+}
+
+/* CARGA DE RUTAS + FLECHAS */
+
+// Ruta A ida
+fetch('a_ida.json')
+  .then(res => res.json())
+  .then(data => {
+    rutaA_ida = L.geoJSON(data, {
+      filter: f => f.geometry.type === "LineString",
+      style: { color: 'green', weight: 5, opacity: 0.2 }
+    }).addTo(mapa);
+
+    decoA_ida = agregarFlechas(rutaA_ida, "#0b9e0b");
+  });
+
+// Ruta A retorno
+fetch('a_retorno.json')
+  .then(res => res.json())
+  .then(data => {
+    rutaA_retorno = L.geoJSON(data, {
+      filter: f => f.geometry.type === "LineString",
+      style: { color: 'orange', weight: 4, opacity: 0.3, dashArray: '6 6' }
+    }).addTo(mapa);
+
+    decoA_retorno = agregarFlechas(rutaA_retorno, "#eb7e02");
+  });
+
+// Ruta B ida
+fetch('b_ida.json')
+  .then(res => res.json())
+  .then(data => {
+    rutaB_ida = L.geoJSON(data, {
+      filter: f => f.geometry.type === "LineString",
+      style: { color: 'blue', weight: 5, opacity: 0.2 }
+    }).addTo(mapa);
+
+    decoB_ida = agregarFlechas(rutaB_ida, "#0099ff");
+  });
+
+// Ruta B retorno
+fetch('b_retorno.json')
+  .then(res => res.json())
+  .then(data => {
+    rutaB_retorno = L.geoJSON(data, {
+      filter: f => f.geometry.type === "LineString",
+      style: { color: 'red', weight: 5, opacity: 0.3, dashArray: '9 9' }
+    }).addTo(mapa);
+
+    decoB_retorno = agregarFlechas(rutaB_retorno, "#ff0000");
+
+  });
+
+/* CONTROL DE VISIBILIDAD */
+function toggleRuta(id, layer, deco) {
+  const check = document.getElementById(id);
+
+  check.addEventListener("change", () => {
+    if (!layer || !deco) return; // aún no cargada
+
+    if (check.checked) {
+      layer.addTo(mapa);
+      deco.addTo(mapa);
+    } else {
+      mapa.removeLayer(layer);
+      mapa.removeLayer(deco);
+    }
+  });
+}
+
+setTimeout(() => {
+  toggleRuta("a_ida", rutaA_ida, decoA_ida);
+  toggleRuta("a_retorno", rutaA_retorno, decoA_retorno);
+  toggleRuta("b_ida", rutaB_ida, decoB_ida);
+  toggleRuta("b_retorno", rutaB_retorno, decoB_retorno);
+}, 1500);
+
+
+ let marcadorUsuario = null;
+  const botonUbicacion = document.getElementById('btnUbicacion');
+ let coordenadasUsuario = { lat: null, lon: null };
+ 
+// Obtener dirección desde coordenadas (solo barrio y dirección)
+async function obtenerDireccion(lat, lon) {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`);
+    const data = await res.json();
+    const addr = data.address;
+    const barrio = addr.suburb || addr.neighbourhood || addr.village || addr.town || "";
+    const calle = addr.road || addr.residential || addr.pedestrian || "";
+    const numero = addr.house_number ? ` #${addr.house_number}` : "";
+    const texto = [barrio, `${calle}${numero}`].filter(Boolean).join(", ");
+    return texto || "Ubicación desconocida";
+  } catch {
+    return "No se pudo obtener la dirección";
+  }
+}
+
+
+  // --- Boton Donde estas? ---
+  async function mostrarUbicacion(lat, lon) {
+    const direccion = await obtenerDireccion(lat, lon);
+      verificarDistancia(lat, lon);
+
+    // Si ya hay un marcador, actualizar posición en lugar de eliminar y crear
+    if (!marcadorUsuario) {
+      marcadorUsuario = L.marker([lat, lon], { draggable: true }).addTo(mapa);
+      intentarCalcularRuta();
+    } else {
+      marcadorUsuario.setLatLng([lat, lon]);
+      intentarCalcularRuta();
+    }
+
+    marcadorUsuario.bindPopup(`📍 ${direccion}`).openPopup();
+    mapa.setView([lat, lon], 15);
+
+    botonUbicacion.innerText = `📍 ${direccion}`;
+
+    // Eliminar eventos previos y volver a asignar
+    marcadorUsuario.off('dragend');
+    marcadorUsuario.on('dragend', async (e) => {
+      const pos = e.target.getLatLng();
+      coordenadasUsuario = { lat: pos.lat, lon: pos.lng };
+      verificarDistancia(pos.lat, pos.lng);
+      const nuevaDir = await obtenerDireccion(pos.lat, pos.lng);
+      marcadorUsuario.setPopupContent(`${nuevaDir} 📍`).openPopup();
+      botonUbicacion.innerText = `${nuevaDir} 📍`;
+      intentarCalcularRuta();
+    });
+    coordenadasUsuario = { lat, lon }; // Guardar coordenadas actuales
+    intentarCalcularRuta();
+  }
+
+  // --- Intentar detectar ubicación automáticamente al inicio ---
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => mostrarUbicacion(pos.coords.latitude, pos.coords.longitude),
+      () => {
+        botonUbicacion.innerText = "Pulsa para detectar ubicación 📍";
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+    intentarCalcularRuta();
+  } else {
+    botonUbicacion.innerText = "Tu navegador no soporta GPS";
+  }
+
+  // --- Botón: siempre repite detección al presionarse ---
+  botonUbicacion.addEventListener('click', () => {
+    if (!navigator.geolocation) {
+      alert('Tu navegador no soporta geolocalización.');
+      return;
+    }
+
+    botonUbicacion.innerText = '📡 Detectando ubicación...';
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        await mostrarUbicacion(pos.coords.latitude, pos.coords.longitude);
+        botonUbicacion.innerText = 'Actualizado...';
+        intentarCalcularRuta();
+        setTimeout(() => botonUbicacion.innerText = '¿Dónde estás?', 3000);
+      },
+      () => {
+        botonUbicacion.innerText = 'No se pudo detectar ubicación 📍, toca el mapa.';
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+    intentarCalcularRuta();
+  });
+// FLECHA DE DIRECCIÓN EN TIEMPO REAL (solo móvil)
+const esMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+let flechaDireccion = null;
+let ultimoAngulo = 0;
+
+if (esMovil && navigator.geolocation) {
+
+  // --- Crear el icono con el estilo ---
+  const iconoFlecha = L.divIcon({
+    className: 'icono-rotatorio',
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    html: '<div class="flecha-usuario"></div>'
+  });
+
+  // --- Rastreo continuo de posición ---
+  navigator.geolocation.watchPosition(
+    (pos) => {
+      const { latitude: lat, longitude: lon } = pos.coords;
+
+      if (!flechaDireccion) {
+        flechaDireccion = L.marker([lat, lon], { icon: iconoFlecha, interactive: false }).addTo(mapa);
+      } else {
+        flechaDireccion.setLatLng([lat, lon]);
+      }
+    },
+    (err) => console.warn("Error de GPS:", err),
+    { enableHighAccuracy: true, maximumAge: 1000 }
+  );
+
+  // --- Orientación de la flecha (brújula en tiempo real) ---
+  if (window.DeviceOrientationEvent) {
+    window.addEventListener("deviceorientationabsolute", (event) => {
+      const heading = event.alpha;
+      if (heading == null || !flechaDireccion || !flechaDireccion._icon) return;
+
+      const rotacion = 360 - heading;
+      if (Math.abs(rotacion - ultimoAngulo) > 1) {
+        ultimoAngulo = rotacion;
+        flechaDireccion._icon.firstChild.style.transform = `rotate(${rotacion}deg)`;
+      }
+    });
+  }
+}
+
+// Script para que funcione el menú
+
+const btnDestino = document.getElementById("btnDestino");
+const menuDestino = document.getElementById("menuDestino");
+const overlayDestino = document.getElementById("overlayDestino");
+
+// Abrir menú
+btnDestino.addEventListener("click", () => {
+  // 🔄 REINICIAR MAPA A ESTADO NORMAL
+mostrarRutasBase();          // vuelve a mostrar todas las busetas
+capaRutaSugerida.clearLayers(); // borra la ruta de Turf
+
+   // --- REINICIAR TODO ---
+  // Ocultar buscador y sugerencias
+  const contBuscador = document.getElementById("buscador-container");
+  const listaSugerencias = document.getElementById("sugerencias");
+  contBuscador.style.display = "none";
+  listaSugerencias.style.display = "none";
+
+  // Reiniciar modo selección destino
+  modoSeleccionDestino = false;
+  destinoSeleccionado = false;
+
+  // Eliminar marcador de destino si existe
+  if (marcadorDestino) {
+    mapa.removeLayer(marcadorDestino);
+    marcadorDestino = null;
+  }
+
+  // --- ABRIR MENÚ ---
+  const menu = document.getElementById("menuDestino");
+  const overlay = document.getElementById("overlayDestino");
+  overlay.style.display = "block";
+  menu.classList.add("activo");
+  overlayDestino.style.display = "block";
+  menuDestino.classList.add("activo");
+});
+
+/* 1. VARIABLES GLOBALES */
+
+let marcadorDestino = null;
+let destinoSeleccionado = false;
+let modoSeleccionDestino = false;
+let coordenadasDestino = null;
+
+const botonDestino = document.getElementById("btnDestino");
+
+/* 2. ÍCONO DEL DESTINO */
+const iconoDestino = L.icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+  iconSize: [38, 38],
+  iconAnchor: [19, 38],
+  popupAnchor: [0, -38]
+});
+
+/* 3. MENÚ EMERGENTE (ABRIR/CERRAR) */
+botonDestino.addEventListener("click", () => {
+  const menu = document.getElementById("menuDestino");
+
+  // Mostrar / Ocultar menú
+  if (menu.style.display === "none" || menu.style.display === "") {
+    menu.style.display = "block";
+  } else {
+    menu.style.display = "none";
+  }
+});
+
+/* 4. OPCIÓN “ SELECCIONAR EN EL MAPA” */
+ 
+document.getElementById("opMapa").addEventListener("click", () => {
+  document.getElementById("menuDestino").style.display = "none";
+
+  modoSeleccionDestino = true;
+  botonDestino.textContent = "📍 Seleccione un lugar en el mapa...";
+  intentarCalcularRuta();
+});
+
+/* 5. OPCIÓN “BUSCAR DESTINO" */
+document.getElementById("opBuscar").addEventListener("click", () => {
+  document.getElementById("menuDestino").style.display = "none";
+
+  const cont = document.getElementById("buscador-container");
+  cont.style.display = "block";
+
+  const inp = document.getElementById("buscadorDestino");
+  inp.value = "";
+  inp.focus();
+
+  const sug = document.getElementById("sugerencias");
+  sug.innerHTML = "";
+  sug.style.display = "none";
+  intentarCalcularRuta();
+});
+
+/* 6. BASE DE DATOS LOCAL DE LOS PUTOS PUNTOS DE INTERÉS. */
+const puntosInteres = [
+  {nombre: "Estadio de Beisbol 20 de Enero Y Estadio Arturo Cumplido", lat: 9.27903432041196, lon: -75.40934890508653},
+  {nombre: "I.E 20 de Enero", lat: 9.281726422708974, lon: -75.41184872388841},
+  {nombre: "Cancha el Cortijo y Iglesia El Cortijo", lat: 9.284336445120793, lon: -75.40722191333771 },
+  {nombre: "Olimpica Argelia", lat: 9.286260860961855, lon: -75.4010796546936},
+  {nombre: "Iglesia de Jesucristo Santos de los Dltimos Dias", lat: 9.285501154732717, lon: -75.40167242288591},
+  {nombre: "Polideportivo Las Delicias", lat: 9.284442327972732, lon: -75.40011942386629},
+  {nombre: "Distrito Militar #11", lat: 9.283298791479082, lon: -75.39886951446535},
+  {nombre: "I.E Simon Araujo", lat: 9.285781743287899, lon: -75.39449751377107},
+  {nombre: "Ministerio de Transporte", lat: 9.283780559623334, lon: -75.397367477417},
+  {nombre: "I.E Vicente de Paul", lat: 9.287788209615755, lon: -75.39538800716402},
+  {nombre: "I.E Berthel", lat: 9.292240512060065, lon: -75.39473891258241},
+  {nombre: "Plaza Majagual", lat: 9.296014043453892, lon: -75.39515674886702},
+  {nombre: "Guacari (Entrada Princial)", lat: 9.302716968423338, lon: -75.38351117681228},
+  {nombre: "Exito", lat: 9.303024012477207, lon: -75.388918510199},
+  {nombre: "CECAR", lat: 9.307684184763506, lon: -75.36779409717586},
+  {nombre: "Universidad AJS", lat: 9.299923402154736, lon: -75.39249187784847},
+  {nombre: "Gran Centro El Parque", lat: 9.303862047315468, lon: -75.39444452602017},
+  {nombre: "Terminal de Transporte", lat: 9.295391787784352, lon: -75.38337236714865},
+  {nombre: "Hotel Malibu", lat: 9.302824451542511, lon: -75.37918812104033},
+  {nombre: "Guacari (Entrada Trasera)", lat: 9.30015104011222, lon: -75.38202053383266},
+  {nombre: "Gobernacion de Sucre", lat: 9.302535935876223, lon: -75.38505143002136},
+  {nombre: "Confasucre", lat: 9.300248977345811, lon: -75.3853089220915},
+  {nombre: "Terminal Transporte Since", lat: 9.299650593057088, lon: -75.38586610177897},
+  {nombre: "Terminal Transporte Corozal", lat: 9.30133141239898, lon: -75.38745556410525},
+  {nombre: "Muebles Jamar", lat: 9.29803475386084, lon: -75.38579426167142},
+  {nombre: "Cancha Sintetica La #10", lat: 9.2971603660902, lon: -75.38465978667739},
+  {nombre: "Inter Rapidisimo", lat: 9.298334585633445, lon: -75.39062251540942},
+  {nombre: "Monumento Las Vacas", lat: 9.298068724957888, lon: -75.39308303901244},
+  {nombre: "Teatro Municipal", lat: 9.302080245831101, lon: -75.39213115760856},
+  {nombre: "Cementerio Central", lat: 9.305722477893097, lon: -75.38911985988378},
+  {nombre: "Clinica La Concepcion", lat: 9.307175815377105, lon: -75.36971105813566},
+  {nombre: "Universidad de Sucre", lat: 9.315201286184745, lon: -75.38961654970893},
+  {nombre: "Mercado Nuevo", lat: 9.295884127171137, lon: -75.38669830628714},
+  {nombre: "Clinica Santa Maria", lat: 9.306586554546177, lon: -75.39374879171422},
+  {nombre: "Clinica Salud Social", lat: 9.295996436493944, lon: -75.39700336102523},
+  {nombre: "Clinica Corposucre", lat: 9.299058409022345, lon: -75.3923653628782},
+];
+
+
+ /* 7. SISTEMA DE BUSCADOR + SUGERENCIAS */
+ 
+const inputDestino = document.getElementById("buscadorDestino");
+const listaSugerencias = document.getElementById("sugerencias");
+
+let timeoutBusqueda = null;
+
+//  Cuando escribe
+inputDestino.addEventListener("input", () => {
+  clearTimeout(timeoutBusqueda);
+
+  const texto = inputDestino.value.trim().toLowerCase();
+
+  if (texto.length === 0) {
+    listaSugerencias.style.display = "none";
+    return;
+  }
+
+  // Sugerencias mientras escribe
+  mostrarSugerencias(filtrarPOI(texto));
+
+  // Después de 3 seg → búsqueda precisa
+  timeoutBusqueda = setTimeout(() => {
+    mostrarSugerencias(filtrarPOI(texto, true));
+  }, 500);
+});
+
+//  Filtro de POI
+function filtrarPOI(texto, preciso = false) {
+  return puntosInteres.filter(p =>
+    preciso
+      ? p.nombre.toLowerCase().includes(texto)
+      : p.nombre.toLowerCase().startsWith(texto)
+  );
+}
+
+//  Mostrar sugerencias
+function mostrarSugerencias(lista) {
+  listaSugerencias.innerHTML = "";
+  listaSugerencias.style.display = lista.length ? "block" : "none";
+
+  lista.forEach(poi => {
+    const item = document.createElement("div");
+    item.className = "sugerencia-item";
+    item.style.padding = "10px";
+    item.style.cursor = "pointer";
+    item.style.borderBottom = "1px solid #333";
+
+    item.textContent = poi.nombre;
+
+    item.addEventListener("click", () => {
+      seleccionarDestinoPOI(poi);
+    });
+
+    listaSugerencias.appendChild(item);
+  });
+}
+
+// 📍 Cuando selecciona un POI
+function seleccionarDestinoPOI(poi) {
+  listaSugerencias.style.display = "none";
+  document.getElementById("buscador-container").style.display = "none";
+  coordenadasDestino = { lat: poi.lat, lng: poi.lon };
+
+  // Eliminar marcador anterior
+  if (marcadorDestino) mapa.removeLayer(marcadorDestino);
+
+  marcadorDestino = L.marker([poi.lat, poi.lon], { icon: iconoDestino }).addTo(mapa);
+  marcadorDestino.bindPopup(`<b>${poi.nombre}</b> 📍`).openPopup();
+
+  mapa.flyTo([poi.lat, poi.lon], 16);
+
+  botonDestino.textContent = poi.nombre + " 📍";
+
+  destinoSeleccionado = true;
+  modoSeleccionDestino = false;
+  intentarCalcularRuta();
+}
+
+ /* 8. SELECCIONAR DESTINO HACIENDO CLIC EN EL MAPA */
+ 
+mapa.on("click", async (e) => {
+  if (!modoSeleccionDestino) return;
+
+  const { lat, lng } = e.latlng;
+  coordenadasDestino = { lat, lng };
+
+  if (marcadorDestino) mapa.removeLayer(marcadorDestino);
+
+  marcadorDestino = L.marker([lat, lng], { icon: iconoDestino }).addTo(mapa);
+
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`
+    );
+    const data = await res.json();
+
+    const addr = data.address;
+    const barrio = addr.suburb || addr.neighbourhood || addr.village || addr.town || "";
+    const calle = addr.road || addr.residential || addr.pedestrian || "";
+    const numero = addr.house_number ? ` #${addr.house_number}` : "";
+    const direccion = [barrio, `${calle}${numero}`].filter(Boolean).join(", ") || "Destino sin dirección";
+
+    marcadorDestino.bindPopup(`<b>Destino:</b><br>${direccion} 📍`).openPopup();
+    botonDestino.textContent = direccion + " 📍";
+
+  } catch {
+    botonDestino.textContent = "Destino seleccionado 📍";
+  }
+
+  mapa.flyTo([lat, lng], 16);
+  modoSeleccionDestino = false;
+  destinoSeleccionado = true;
+  intentarCalcularRuta();
+});
+
+// VERIFICAR SI EL USUARIO ESTÁ DENTRO DE UN RADIO DE 4.5 KM 
+
+// Centro de Sincelejo
+const centroSincelejo = { lat: 9.303834061949027, lon: -75.39591846078204 };
+const radioMaximoMetros = 4500; // 4.5 km
+
+// Función para calcular distancia Haversine
+function distanciaEnMetros(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) ** 2;
+
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
+//  VENTANA EMERGENTE HTML 
+let avisoFueraVisible = false;
+
+// Crear la ventana (solo una vez)
+function crearVentanaFuera() {
+  if (document.getElementById("avisoFuera")) return;
+
+  const div = document.createElement("div");
+  div.id = "avisoFuera";
+  div.innerHTML = `
+    <div class="aviso-contenido">
+      <button class="cerrar-aviso" onclick="ocultarAvisoFuera()">✖</button>
+      <h3>⚠ Fuera del área</h3>
+      <p>Estás fuera del rango de las busetas (Fuera de Sincelejo)</p>
+    </div>
+  `;
+  document.body.appendChild(div);
+}
+
+function mostrarAvisoFuera() {
+  if (avisoFueraVisible) return;
+  crearVentanaFuera();
+  document.getElementById("avisoFuera").style.display = "flex";
+  avisoFueraVisible = true;
+}
+
+function ocultarAvisoFuera() {
+  const div = document.getElementById("avisoFuera");
+  if (!div) return;
+  div.style.display = "none";
+  avisoFueraVisible = false;
+}
+
+// Verificar distancia
+function verificarDistancia(lat, lon) {
+  const d = distanciaEnMetros(lat, lon, centroSincelejo.lat, centroSincelejo.lon);
+
+  if (d > radioMaximoMetros) {
+    mostrarAvisoFuera();
+  } else {
+    ocultarAvisoFuera();
+  }
+}
+
+/* ===========================================================
+   SISTEMA AUTOMÁTICO DE RUTA SUGERIDA
+   =========================================================== */
+
+// Capa donde dibujaremos la línea del bus sugerido
+let capaRutaSugerida = L.layerGroup().addTo(mapa);
+
+// Ocultar rutas
+
+function ocultarRutasBase() {
+  [
+    rutaA_ida, decoA_ida,
+    rutaA_retorno, decoA_retorno,
+    rutaB_ida, decoB_ida,
+    rutaB_retorno, decoB_retorno
+  ].forEach(l => {
+    if (l && mapa.hasLayer(l)) mapa.removeLayer(l);
+  });
+}
+
+function mostrarRutasBase() {
+  [
+    rutaA_ida, decoA_ida,
+    rutaA_retorno, decoA_retorno,
+    rutaB_ida, decoB_ida,
+    rutaB_retorno, decoB_retorno
+  ].forEach(l => {
+    if (l && !mapa.hasLayer(l)) mapa.addLayer(l);
+  });
+}
+
+
+// Función principal que se activa automáticamente
+function intentarCalcularRuta() {
+    // 1. Validar si tenemos ambos datos
+    if (!coordenadasUsuario.lat || !coordenadasDestino) {
+        return; // Falta alguno, no hacemos nada aún
+    }
+
+    console.log("Datos completos. Calculando ruta...");
+    capaRutaSugerida.clearLayers(); // Borrar rutas anteriores
+
+    // 2. Preparar puntos para Turf.js
+    const ptInicio = turf.point([coordenadasUsuario.lon, coordenadasUsuario.lat]);
+    const ptFin = turf.point([coordenadasDestino.lng, coordenadasDestino.lat]);
+
+    // 3. Definir las rutas disponibles (asegúrate que las variables rutaA_ida, etc. ya cargaron)
+    const rutasDisponibles = [
+        { id: "A (Ida)", layer: rutaA_ida, color: "green" },
+        { id: "A (Retorno)", layer: rutaA_retorno, color: "orange" },
+        { id: "B (Ida)", layer: rutaB_ida, color: "blue" },
+        { id: "B (Retorno)", layer: rutaB_retorno, color: "red" }
+    ];
+
+    let mejorOpcion = null;
+    let menorDistanciaTotal = Infinity;
+
+    // 4. Analizar cuál ruta sirve
+    rutasDisponibles.forEach(r => {
+        if (!r.layer) return; // Si el JSON no ha cargado, saltar
+
+        const geojson = r.layer.toGeoJSON();
+        // Aplanar features por si viene como Collection o Array
+        const features = geojson.features ? geojson.features : [geojson];
+
+        features.forEach(feature => {
+            if (feature.geometry.type === 'LineString') {
+                const linea = feature;
+
+                // Buscar el punto de la línea más cercano al usuario y al destino
+                const snapInicio = turf.nearestPointOnLine(linea, ptInicio);
+                const snapFin = turf.nearestPointOnLine(linea, ptFin);
+
+                // IMPORTANTE: Validar sentido de la ruta
+                // 'location' es la distancia recorrida en la línea. 
+                // Si inicio < fin, el bus va en la dirección correcta.
+                if (snapInicio.properties.location < snapFin.properties.location) {
+                    
+                    // Calcular cuánto tiene que caminar el usuario en total
+                    const distCaminata1 = turf.distance(ptInicio, snapInicio);
+                    const distCaminata2 = turf.distance(ptFin, snapFin);
+                    const totalCaminata = distCaminata1 + distCaminata2;
+
+                    // Si esta ruta hace caminar menos, es la ganadora
+                    if (totalCaminata < menorDistanciaTotal) {
+                        menorDistanciaTotal = totalCaminata;
+                        mejorOpcion = {
+                            ruta: r,
+                            puntoSubida: snapInicio,
+                            puntoBajada: snapFin,
+                            lineaCompleta: linea
+                        };
+                    }
+                }
+            }
+        });
+    });
+
+    // 5. Dibujar el resultado
+    dibujarResultado(mejorOpcion, ptInicio, ptFin);
+}
+
+function dibujarResultado(opcion, ptInicio, ptFin) {
+    if (!opcion) {
+        alert("No se encontró una ruta de bus óptima cercana. Puede que necesites caminar mucho o estemos fuera de cobertura.");
+        return;
+    }
+
+    // Para ocultar las rutas base y destacar la sugerida
+
+    ocultarRutasBase();
+
+    // A. Línea punteada: Usuario -> Parada
+    const caminata1 = [
+        [ptInicio.geometry.coordinates[1], ptInicio.geometry.coordinates[0]],
+        [opcion.puntoSubida.geometry.coordinates[1], opcion.puntoSubida.geometry.coordinates[0]]
+    ];
+    L.polyline(caminata1, { color: 'black', dashArray: '5, 10', weight: 4 }).addTo(capaRutaSugerida);
+
+    // B. Tramo del Bus (Solo la parte que usará)
+    const tramoBus = turf.lineSlice(opcion.puntoSubida, opcion.puntoBajada, opcion.lineaCompleta);
+    L.geoJSON(tramoBus, {
+        style: { color: opcion.ruta.color, weight: 8, opacity: 0.9 }
+    }).addTo(capaRutaSugerida)
+    .bindPopup(`🚌 <b>Toma la ruta ${opcion.ruta.id} </b>`).openPopup();
+
+    // C. Línea punteada: Parada -> Destino
+    const caminata2 = [
+        [opcion.puntoBajada.geometry.coordinates[1], opcion.puntoBajada.geometry.coordinates[0]],
+        [ptFin.geometry.coordinates[1], ptFin.geometry.coordinates[0]]
+    ];
+    L.polyline(caminata2, { color: 'black', dashArray: '5, 10', weight: 4 }).addTo(capaRutaSugerida);
+
+    // Ajustar vista para ver toda la ruta
+    const bounds = L.latLngBounds(caminata1[0], caminata2[1]);
+    mapa.flyToBounds(bounds, { padding: [50, 50] });
+    
+    // Feedback visual en el botón inferior
+    const btnInfo = document.getElementById('btnDestino');
+    btnInfo.innerHTML = `Ruta sugerida: <b>${opcion.ruta.id}</b> 🚌`;
+}
+
+// Función para cerrar la bienvenida ventana de actualizacion(la usaremos en el botón "Entendido")
+function cerrarBienvenida() {
+  const modal = document.getElementById("modalBienvenida");
+  modal.style.opacity = "0";
+  setTimeout(() => {
+    modal.style.display = "none";
+  }, 300); // Pequeño delay para la transición
+}
+</script>
+</body>
+</html>
