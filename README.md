@@ -30,19 +30,19 @@ Para reportar incosistencias en las rutas o errores en la pagina, puedes usar la
 <details>
   <summary><strong>Changelog</strong></summary>
 
-### 1.0-alpha
+### 1.0-alpha ✔
 - Ubicación del usuario
 - Muestra las rutas A (ida y retorno) y B (solo ida)
 - Rediseño de la interfaz
 - Bugs de ubicación corregidos
 
-### 1.1-alpha
+### 1.1-alpha ✔
 - Soporte a interfaz de teléfonos
 - Agregada ruta B (retorno)
 - Menú de rutas actualizado
 - Minor bugs
 
-### 1.3-alpha
+### 1.3-alpha ✔
 - Se agregó una brújula (solo móviles)
 - Funcionalidad al botón “¿Hacia dónde?”
 - Rediseño de direcciones
@@ -62,6 +62,8 @@ Para reportar incosistencias en las rutas o errores en la pagina, puedes usar la
 ### 1.0-beta ✔
 - Ruta sugerida y ocultar rutas innecesarias
 
+### 1.0.1-beta ✔
+- Se actualizo las rutas y el mensaje emergente.
 ---
 
 ## Próximas actualizaciones
