@@ -64,6 +64,11 @@ Para reportar incosistencias en las rutas o errores en la pagina, puedes usar la
 
 ### 1.0.1-beta ✔
 - Se actualizo las rutas y el mensaje emergente.
+
+### 1.0.3-beta ✔
+- Se actualizo la interfaz del menu de las rutas
+- Se puso un limite al seleccionar tu destino
+- Se corrigio bugs de la ruta sugerida
 ---
 
 ## Próximas actualizaciones
