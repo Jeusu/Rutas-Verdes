@@ -14,6 +14,57 @@
 
 <style>
 
+  /* INTRO HEADER */
+
+#intro {
+  position: fixed;
+  
+  left: 50%;
+  transform: translateX(-50%);
+  
+  background: #1a1a1a;
+  text-align: center;
+  z-index: 20000;
+
+  padding: 10px 20px;
+  border-radius: 12px;
+
+  display: inline-block; /* 🔥 se ajusta al contenido */
+  
+  animation: desaparecerIntro 0.5s ease 3s forwards;
+}
+
+#intro h1 {
+  margin: 0;
+  font-size: 1.0em; /* 🔥 tamaño reducido */
+  color: #ffffff;   /* 🔥 blanco */
+}
+
+/* BARRA DE TIEMPO */
+.barra-tiempo {
+  width: 100%;
+  height: 4px;
+  margin-top: 8px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #009900, #00cc66);
+  animation: barraAnimacion 3s linear forwards;
+}
+
+/* ANIMACIÓN BARRA */
+@keyframes barraAnimacion {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+/* DESAPARECER */
+@keyframes desaparecerIntro {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+
   /* Estilo Ventana de Bienvenida (Similar a fuera de rango) Ventana de actualizacion */
 .modal-bienvenida {
   position: fixed;
@@ -202,83 +253,147 @@
     opacity: 0.8;
   }
 
-  /*  Menú de rutas */
-  .menu {
-    position: absolute;
-    top: 15px;
-    left: 1000px;
-    background: rgba(255,255,255,0.9);
-    padding: 10px 15px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    z-index: 1000;
-    font-family: sans-serif;
-  }
+.menu {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 15px;
+  border-radius: 14px;
+  width: 138px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+  border: 1px solid #003d1f;
+  z-index: 1000;
 
-  .menu label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 14px;
-    color: #000;
-  }
-  .color-cuadro {
-  width: 15px;
-  height: 15px;
-  border-radius: 3px;
-  display: inline-block;
+  transform: translateX(120%);
+  opacity: 0;
+  transition: all 0.35s ease;
 }
 
-/* Colores de cada ruta */
-.verde { background-color: #28a745; }
-.naranja { background-color: #ff9800; }
-.azul { background-color: #007bff; }
-.rojo { background-color: #dc3545; }
-  /*  Botón hamburguesa (solo móvil) */
-  .toggle-menu {
+.menu.activo {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.menu h4 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  text-align: center; /* 🔥 centrado */
+  color: #00ff88;
+}
+
+/* ITEMS */
+.menu .item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+/* LABEL */
+.menu label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* INPUT OCULTO */
+.menu input {
+  display: none;
+}
+
+/* CHECK BASE */
+.check {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 2px solid #555;
+  position: relative;
+  transition: 0.2s;
+}
+
+/* ✔ */
+.menu input:checked + .check::after {
+  content: "✔";
+  position: absolute;
+  font-size: 12px;
+  color: white;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* COLORES POR RUTA */
+#a_ida:checked + .check {
+  background: #28a745;
+  border-color: #28a745;
+}
+
+#a_retorno:checked + .check {
+  background: #ff9800;
+  border-color: #ff9800;
+}
+
+#b_ida:checked + .check {
+  background: #007bff;
+  border-color: #007bff;
+}
+
+#b_retorno:checked + .check {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+/* BOTÓN DINÁMICO*/
+
+.toggle-menu {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #009900, #00cc66);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 18px;
+  color: white;
+  cursor: pointer;
+  z-index: 1100;
+  transition: all 0.3s ease;
+}
+
+/* CUANDO MENÚ ESTÁ ABIERTO */
+.toggle-menu.activo {
+  position: fixed;
+  top: 210px;
+  background: linear-gradient(135deg, #009900, #00cc66);
+  bottom: auto;
+}
+
+/* HOVER */
+.toggle-menu:hover {
+  transform: scale(1.1);
+}
+
+/* 🚫 ELIMINAMOS EL MODO FULLSCREEN EN MÓVIL */
+@media (max-width: 768px) {
+  .menu {
+    width: 138px;
+    height: auto;
+    top: 20px;
+    right: 20px;
+    border-radius: 14px;
+  }
+
+  .toggle-menu.activo {
     position: fixed;
-    top: 15px;
-    right: 15px;
-    background: rgba(0, 153, 0, 0.9);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 1100;
-    display: none;
+    top: 210px;
+    bottom: auto;
+    background: linear-gradient(135deg, #009900, #00cc66);
   }
-
-  /*  Adaptación para móviles */
-  @media (max-width: 768px) {
-    .menu {
-      left: 0;
-      right: 0;
-      top: 0;
-      border-radius: 0 0 12px 12px;
-      padding: 12px;
-      display: none;
-    }
-
-    .menu.activo {
-      display: block;
-    }
-
-    .toggle-menu {
-      display: block;
-    }
-
-    .inferior .btn {
-      width: 48%;
-      font-size: 0.95em;
-      padding: 12px;
-    }
-
-    .firma {
-      font-size: 0.75em;
-      left: 10px;
-    }
-  }
+}
 
 /* Ventana de fuera del mapa */
 #avisoFuera {
@@ -319,19 +434,49 @@
   to   { opacity: 1; transform: translate(-50%, 0); }
 }
 
+#avisoDestinoFuera {
+  position: fixed;
+  top: 147px; /* un poco más abajo que el otro */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255,255,255,0.3);
+  z-index: 9999;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  animation: aparecer 0.3s ease;
+}
 </style>
 </head>
 <body>
 
-  <!-- Ventana de aviso actualizacion -->
+  <!-- Ventana de aviso actualizacion 
   <div id="modalBienvenida" class="modal-bienvenida">
   <div class="aviso-contenido">
     <button class="cerrar-aviso" onclick="cerrarBienvenida()">✖</button>
-    <h2 style="color: #ffcc00; margin-top: 0;">⚠ ATENCIÓN</h2> <!-- Esto es el titulo de la ventana emerjente -->
-    <p>Rutas Actualizadas!</p> <!-- Esto es el texto de la ventana emerjente -->
-    <p><strong>¡Gracias por usar mi proyecto!</strong></p> <!-- Esto es el texto de abajo de la ventana emerjente -->
+    <h2 style="color: #ffcc00; margin-top: 0;">⚠ ATENCIÓN</h2> <!-- Esto es el titulo de la ventana emerjente 
+    <p>Rutas Actualizadas!</p> <!-- Esto es el texto de la ventana emerjente
+    <p><strong>¡Gracias por usar mi proyecto!</strong></p> <!-- Esto es el texto de abajo de la ventana emerjente 
     <button class="opcion-btn" onclick="cerrarBienvenida()" style="background: #009900; margin-top: 15px;">Entendido</button>
   </div>
+</div> -->
+
+<!-- Ventana de aviso fuera del mapa -->
+<div id="avisoDestinoFuera" style="display:none;">
+  <div class="aviso-contenido">
+    <button class="cerrar-aviso" onclick="ocultarAvisoDestino()">✖</button>
+    <h3>⚠ Fuera del área</h3>
+    <p>Está fuera del rango de las busetas (Fuera de Sincelejo)</p>
+  </div>
+</div>
+
+<div id="intro">
+  <h1>Rutas Verdes by @Jeusu</h1>
+  <div class="barra-tiempo"></div>
 </div>
 
 <!-- Cuadro de búsqueda + sugerencias -->
@@ -354,16 +499,47 @@
   <button id="opBuscar" class="opcion-btn">🔎 Buscar destino</button>
 </div>
 
-    <button class="toggle-menu" onclick="document.querySelector('.menu').classList.toggle('activo')">
-  ☰
-    </button>
+<button id="toggleMenu" class="toggle-menu">Menu</button>
 
   <!--  Menú para ocultar/mostrar rutas -->
-<div class="menu">
-  <label><input type="checkbox" id="a_ida" checked> Ruta A - Ida   <span class="color-cuadro verde"></span></label>
-  <label><input type="checkbox" id="a_retorno" checked> Ruta A - Retorno   <span class="color-cuadro naranja"></span></label>
-  <label><input type="checkbox" id="b_ida" checked> Ruta B - Ida   <span class="color-cuadro azul"></span></label>
-  <label><input type="checkbox" id="b_retorno" checked> Ruta B - Retorno   <span class="color-cuadro rojo"></span></label>
+<div class="menu" id="menuRutas">
+  <h4>Rutas</h4>
+
+  <div class="item">
+    <label>
+      <input type="checkbox" id="a_ida" checked>
+      <span class="check"></span>
+      Ruta A - Ida
+    </label>
+    <span class="color-cuadro verde"></span>
+  </div>
+
+  <div class="item">
+    <label>
+      <input type="checkbox" id="a_retorno" checked>
+      <span class="check"></span>
+      Ruta A - Retorno
+    </label>
+    <span class="color-cuadro naranja"></span>
+  </div>
+
+  <div class="item">
+    <label>
+      <input type="checkbox" id="b_ida" checked>
+      <span class="check"></span>
+      Ruta B - Ida
+    </label>
+    <span class="color-cuadro azul"></span>
+  </div>
+
+  <div class="item">
+    <label>
+      <input type="checkbox" id="b_retorno" checked>
+      <span class="check"></span>
+      Ruta B - Retorno
+    </label>
+    <span class="color-cuadro rojo"></span>
+  </div>
 </div>
 
 <!--  Botones inferiores -->
@@ -394,6 +570,7 @@
   <!-- El SCRIPT MAS JODIDO DEL MUNDO-->
 
 <script>
+
   const mapa = L.map('mapa').setView([9.3047, -75.3978], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
@@ -539,6 +716,11 @@ async function obtenerDireccion(lat, lon) {
       marcadorUsuario.setLatLng([lat, lon]);
       intentarCalcularRuta();
     }
+    if (!estaDentroDelArea(lat, lon)) {
+  marcadorUsuario.setOpacity(0.5); // fuera → transparente
+} else {
+  marcadorUsuario.setOpacity(1);   // dentro → normal
+}
 
     marcadorUsuario.bindPopup(`📍 ${direccion}`).openPopup();
     mapa.setView([lat, lon], 15);
@@ -549,14 +731,24 @@ async function obtenerDireccion(lat, lon) {
     marcadorUsuario.off('dragend');
     marcadorUsuario.on('dragend', async (e) => {
       const pos = e.target.getLatLng();
-      coordenadasUsuario = { lat: pos.lat, lon: pos.lng };
+if (estaDentroDelArea(pos.lat, pos.lng)) {
+  coordenadasUsuario = { lat: pos.lat, lon: pos.lng };
+  marcadorUsuario.setOpacity(1);   // dentro → normal
+} else {
+  marcadorUsuario.setOpacity(0.5); // fuera → transparente
+  coordenadasUsuario = { lat: null, lon: null };
+}
       verificarDistancia(pos.lat, pos.lng);
       const nuevaDir = await obtenerDireccion(pos.lat, pos.lng);
       marcadorUsuario.setPopupContent(`${nuevaDir} 📍`).openPopup();
       botonUbicacion.innerText = `${nuevaDir} 📍`;
       intentarCalcularRuta();
     });
-    coordenadasUsuario = { lat, lon }; // Guardar coordenadas actuales
+  if (estaDentroDelArea(lat, lon)) {
+  coordenadasUsuario = { lat, lon };
+} else {
+  coordenadasUsuario = { lat: null, lon: null };
+}
     intentarCalcularRuta();
   }
 
@@ -837,6 +1029,11 @@ function mostrarSugerencias(lista) {
 
 // 📍 Cuando selecciona un POI
 function seleccionarDestinoPOI(poi) {
+if (!estaDentroDelArea(poi.lat, poi.lon)) {
+  mostrarAvisoDestino();
+  return;
+}
+  ocultarAvisoDestino();
   listaSugerencias.style.display = "none";
   document.getElementById("buscador-container").style.display = "none";
   coordenadasDestino = { lat: poi.lat, lng: poi.lon };
@@ -862,6 +1059,11 @@ mapa.on("click", async (e) => {
   if (!modoSeleccionDestino) return;
 
   const { lat, lng } = e.latlng;
+if (!estaDentroDelArea(lat, lng)) {
+  mostrarAvisoDestino();
+  return;
+}
+ocultarAvisoDestino();
   coordenadasDestino = { lat, lng };
 
   if (marcadorDestino) mapa.removeLayer(marcadorDestino);
@@ -913,6 +1115,25 @@ function distanciaEnMetros(lat1, lon1, lat2, lon2) {
 
   return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
+// VENTANA EMERGENTE HTML PARA DESTINO FUERA DEL MAPA
+
+let avisoDestinoVisible = false;
+
+function mostrarAvisoDestino() {
+  if (avisoDestinoVisible) return;
+
+  const div = document.getElementById("avisoDestinoFuera");
+  div.style.display = "flex";
+  avisoDestinoVisible = true;
+}
+
+function ocultarAvisoDestino() {
+  const div = document.getElementById("avisoDestinoFuera");
+  if (!div) return;
+
+  div.style.display = "none";
+  avisoDestinoVisible = false;
+}
 
 //  VENTANA EMERGENTE HTML 
 let avisoFueraVisible = false;
@@ -947,7 +1168,7 @@ function ocultarAvisoFuera() {
   avisoFueraVisible = false;
 }
 
-// Verificar distancia
+// Verificar distancia pa no poner since.
 function verificarDistancia(lat, lon) {
   const d = distanciaEnMetros(lat, lon, centroSincelejo.lat, centroSincelejo.lon);
 
@@ -956,6 +1177,11 @@ function verificarDistancia(lat, lon) {
   } else {
     ocultarAvisoFuera();
   }
+}
+// Verificar distancia destino pa no poner since.
+function estaDentroDelArea(lat, lon) {
+  const d = distanciaEnMetros(lat, lon, centroSincelejo.lat, centroSincelejo.lon);
+  return d <= radioMaximoMetros;
 }
 
 /* ===========================================================
@@ -992,6 +1218,7 @@ function mostrarRutasBase() {
 
 // Función principal que se activa automáticamente
 function intentarCalcularRuta() {
+
     // 1. Validar si tenemos ambos datos
     if (!coordenadasUsuario.lat || !coordenadasDestino) {
         return; // Falta alguno, no hacemos nada aún
@@ -1030,7 +1257,6 @@ function intentarCalcularRuta() {
                 // Buscar el punto de la línea más cercano al usuario y al destino
                 const snapInicio = turf.nearestPointOnLine(linea, ptInicio);
                 const snapFin = turf.nearestPointOnLine(linea, ptFin);
-
                 // IMPORTANTE: Validar sentido de la ruta
                 // 'location' es la distancia recorrida en la línea. 
                 // Si inicio < fin, el bus va en la dirección correcta.
@@ -1051,7 +1277,7 @@ function intentarCalcularRuta() {
                             lineaCompleta: linea
                         };
                     }
-                }
+                  }
             }
         });
     });
@@ -1100,14 +1326,54 @@ function dibujarResultado(opcion, ptInicio, ptFin) {
     btnInfo.innerHTML = `Ruta sugerida: <b>${opcion.ruta.id}</b> 🚌`;
 }
 
-// Función para cerrar la bienvenida ventana de actualizacion(la usaremos en el botón "Entendido")
+const menu = document.querySelector(".menu");
+const btn = document.getElementById("toggleMenu");
+
+function cerrarMenu() {
+  menu.classList.remove("activo");
+  btn.innerHTML = "Menu";
+  btn.classList.remove("activo");
+}
+
+function abrirMenu() {
+  menu.classList.add("activo");
+  btn.innerHTML = "❮";
+  btn.classList.add("activo");
+}
+
+btn.addEventListener("click", (e) => {
+  e.stopPropagation();
+
+  if (menu.classList.contains("activo")) {
+    cerrarMenu();
+  } else {
+    abrirMenu();
+  }
+});
+
+/* 🔥 CLICK AFUERA */
+document.addEventListener("click", (e) => {
+  if (!menu.contains(e.target) && !btn.contains(e.target)) {
+    cerrarMenu();
+  }
+});
+
+//JS para eliminarlo del DOM después de mostrarlo (para optimizar recursos)
+
+setTimeout(() => {
+  const intro = document.getElementById("intro");
+  if (intro) intro.remove();
+}, 8500);
+
+/* Función para cerrar la bienvenida ventana de actualizacion(la usaremos en el botón "Entendido")
 function cerrarBienvenida() {
   const modal = document.getElementById("modalBienvenida");
   modal.style.opacity = "0";
   setTimeout(() => {
     modal.style.display = "none";
   }, 300); // Pequeño delay para la transición
-}
+} */ //solo usar para la ventana de bienvenida
+
 </script>
 </body>
 </html>
