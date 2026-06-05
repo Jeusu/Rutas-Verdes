@@ -75,7 +75,6 @@ Para reportar incosistencias en las rutas o errores en la pagina, puedes usar la
 - Se mejoro el algoritmo de ruta sugerida
 - Codigo mas organizado y limplio
 - LANZAMIENTO DE LA APP
-- 
 ---
 
 ## Próximas actualizaciones
