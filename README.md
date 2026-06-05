@@ -69,20 +69,21 @@ Para reportar incosistencias en las rutas o errores en la pagina, puedes usar la
 - Se actualizo la interfaz del menu de las rutas
 - Se puso un limite al seleccionar tu destino
 - Se corrigio bugs de la ruta sugerida
+
+- ### 1.2.1-beta ✔
+- Se mejoro la experiencia del usuario
+- Se mejoro el algoritmo de ruta sugerida
+- Codigo mas organizado y limplio
+- LANZAMIENTO DE LA APP
+- 
 ---
 
 ## Próximas actualizaciones
 
-### 1.x-beta (in dev)
+### 2.x-beta (in dev)
 - Modo **Offline**
 
-### 1.1-beta
-- Botón de créditos, agradecimientos y changelog
-
-### 1.2-beta
-- App **Rutas Verdes**
-
-### 2.x-beta
+### 1.2.x-beta
 - Corrección de bugs
 
 </details>
