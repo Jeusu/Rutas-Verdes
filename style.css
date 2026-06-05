@@ -452,21 +452,6 @@
   animation: aparecer 0.3s ease;
 }
 
-/* Animación de pulso para la flecha del usuario */
-@keyframes pulseGPS {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.15);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
 .flecha-usuario {
   animation: pulseGPS 2s infinite;
 }
