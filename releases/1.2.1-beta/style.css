@@ -1,0 +1,565 @@
+/* Animacion de menu lateral */
+@keyframes slideMenu {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.menu.activo {
+  animation: slideMenu .35s cubic-bezier(.22,1,.36,1);
+}
+
+ /* Estilo Ventana de Bienvenida (Similar a fuera de rango) Ventana de actualizacion */
+.modal-bienvenida {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Fondo oscuro detrás */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000; /* Por encima de TODO */
+  animation: aparecer 0.4s ease;
+}
+
+.modal-bienvenida .aviso-contenido {
+  background: rgba(20, 20, 20, 0.95);
+  color: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+  max-width: 300px;
+  border: 1px solid #004d00;
+  position: relative;
+}
+
+/*Ventana de actualizacion fin*/
+
+ #buscador-container {
+  position: fixed;   /* Fijo en pantalla */
+  top: 10px;         /* Arriba */
+  left: 50%;         /* Centrado horizontal */
+  transform: translateX(-50%);
+  width: 38%;
+  max-width: 400px;
+  padding: 10px;
+  border-radius: 10px;
+  z-index: 2000;     /* Encima de todo */
+  display: none;     /* Se muestra al buscar */
+}
+
+#buscadorDestino {
+  width: 100%;          /* input ocupa todo el ancho */
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #555;
+  background: #222;
+  color: #ffffff;
+}
+
+#sugerencias {
+  margin-top: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #1a1a1a;
+  border-radius: 8px;
+  display: none;
+}
+
+
+/* Menú centrado */
+.menu-destino {
+  position: fixed;
+  top: 63%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  width: 85%;
+  max-width: 320px;
+  text-align: center;
+  display: none;
+  z-index: 1000;
+
+  /* Animación de aparición */
+  opacity: 0;
+  transition: all 0.25s ease;
+}
+
+.menu-destino.activo {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  animation: popupMenu .35s cubic-bezier(.22,1,.36,1);
+}
+
+@keyframes popupMenu {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -45%) scale(.7);
+  }
+
+  70% {
+    transform: translate(-50%, -50%) scale(1.04);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Botones internos */
+.opcion-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: #2d2d2d;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.opcion-btn:hover {
+  background: #3a3a3a;
+}
+
+
+.icono-rotatorio {
+  transform-origin: center center;
+}
+
+.flecha-usuario {
+  width: 40px;
+  height: 40px;
+  background-image: url('https://www.pngarts.com/files/13/Caret-Arrow-PNG-Photo.png'); /* 🔹 Imagen de flecha */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.2s linear;
+}
+
+  body {
+    background-color: #000;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: white;
+    text-align: center;
+  }
+
+  #mapa {
+    height: 100vh;
+    width: 100%;
+  }
+
+  /*  Botones principales */
+  .btn {
+    display: block;
+    width: 80%;
+    margin: 10px auto;
+    padding: 15px;
+    background: linear-gradient(135deg, #009900, #00cc44);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -150%;
+
+  width: 60%;
+  height: 100%;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.25),
+    transparent
+  );
+
+  transition: .7s;
+}
+
+.btn:hover::before {
+  left: 150%;
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, #00b33c, #00ff66);
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: scale(.95);
+}
+
+  /*  Contenedor inferior */
+  .inferior {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(6px);
+    padding: 15px 10px 10px;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.5);
+    border-top: 1px solid #004d00;
+    z-index: 1000;
+    animation: subirBarra .5s ease;
+  }
+
+  .inferior .btn {
+    display: inline-block;
+    width: 45%;
+    margin: 5px 2%;
+    font-size: 1.1em;
+  }
+
+  /*  Firma */
+.firma {
+  position: fixed;
+  bottom: 90px;
+  left: 20px;
+
+  font-size: .85em;
+
+  color: #aaa;
+
+  z-index: 1001;
+
+  animation: flotar 4s ease-in-out infinite;
+}
+
+.menu {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 15px;
+  border-radius: 14px;
+  width: 138px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+  border: 1px solid #003d1f;
+  z-index: 1000;
+
+  transform: translateX(120%);
+  opacity: 0;
+  transition: all 0.35s ease;
+}
+
+.menu.activo {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.menu h4 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  text-align: center; /*  centrado */
+  color: #00ff88;
+}
+
+/* ITEMS */
+.menu .item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+/* LABEL */
+.menu label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* INPUT OCULTO */
+.menu input {
+  display: none;
+}
+
+/* CHECK BASE */
+.check {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 2px solid #555;
+  position: relative;
+  transition: 0.2s;
+}
+
+/* ✔ */
+.menu input:checked + .check::after {
+  content: "✔";
+  position: absolute;
+  font-size: 12px;
+  color: white;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* COLORES POR RUTA */
+#a_ida:checked + .check {
+  background: #28a745;
+  border-color: #28a745;
+}
+
+#a_retorno:checked + .check {
+  background: #ff9800;
+  border-color: #ff9800;
+}
+
+#b_ida:checked + .check {
+  background: #007bff;
+  border-color: #007bff;
+}
+
+#b_retorno:checked + .check {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+/* BOTÓN DINÁMICO*/
+
+.toggle-menu {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #009900, #00cc66);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 18px;
+  color: white;
+  cursor: pointer;
+  z-index: 1100;
+  transition: all 0.3s ease;
+}
+
+/* CUANDO MENÚ ESTÁ ABIERTO */
+.toggle-menu.activo {
+  position: fixed;
+  top: 210px;
+  background: linear-gradient(135deg, #009900, #00cc66);
+  bottom: auto;
+}
+
+/* HOVER */
+.toggle-menu:hover {
+  transform: scale(1.1);
+}
+
+/*  ELIMINAMOS EL MODO FULLSCREEN EN MÓVIL */
+@media (max-width: 768px) {
+  .menu {
+    width: 138px;
+    height: auto;
+    top: 20px;
+    right: 20px;
+    border-radius: 14px;
+  }
+
+  .toggle-menu.activo {
+    position: fixed;
+    top: px;
+    bottom: auto;
+    background: linear-gradient(135deg, #009900, #00cc66);
+  }
+}
+
+/* Ventana de fuera del mapa */
+#avisoFuera {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 2.5px 5px;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255,255,255,0.3);
+  z-index: 9999;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  animation: aparecer 0.3s ease;
+}
+
+.aviso-contenido {
+  position: relative;
+  text-align: center;
+}
+
+.cerrar-aviso {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  cursor: pointer;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+#avisoDestinoFuera {
+  position: fixed;
+  top: 165px; /* un poco más abajo que el otro */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 2.5px 5px;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255,255,255,0.3);
+  z-index: 9999;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  animation: aparecer 0.3s ease;
+}
+
+/* Animación de pulso para la flecha del usuario */
+@keyframes pulseGPS {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.flecha-usuario {
+  animation: pulseGPS 2s infinite;
+}
+
+/* Animación de entrada para los avisos */
+@keyframes avisoEntrada {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+#avisoFuera,
+#avisoDestinoFuera {
+  animation: avisoEntrada .25s ease;
+}
+
+/* Animación de flotación para la firma */
+@keyframes flotar {
+  0%,100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Animación de subida para la barra inferior */
+@keyframes subirBarra {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Animación de sugerencias */
+.sugerencia-item{
+  transition: .2s;
+}
+
+.sugerencia-item:hover{
+  background: rgba(0,255,100,.12);
+}
+
+.sugerencia-item:active{
+  transform: scale(.98);
+  background: rgba(0,255,100,.2);
+}
+
+/* Animación de entrada para las sugerencias */
+
+@keyframes sugerenciasEntrar {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#sugerencias {
+  animation: sugerenciasEntrar .25s ease;
+}
+
+/* Animación de selección para el destino */
+@keyframes destinoSeleccionado {
+
+  0% {
+    transform: scale(1);
+  }
+
+  30% {
+    transform: scale(1.03);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+
+}
+
+#buscadorDestino.seleccionado {
+  animation: destinoSeleccionado .35s ease;
+}
